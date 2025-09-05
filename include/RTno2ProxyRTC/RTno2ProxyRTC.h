@@ -31,7 +31,6 @@
 #include <rtm/DataInPort.h>
 #include <rtm/DataOutPort.h>
 
-
 // <rtc-template block="component_description">
 /*!
  * @class RTno2ProxyRTC
@@ -40,14 +39,14 @@
  */
 // </rtc-template>
 class RTno2ProxyRTC
-  : public RTC::DataFlowComponentBase
+    : public RTC::DataFlowComponentBase
 {
- public:
+public:
   /*!
    * @brief constructor
    * @param manager Maneger Object
    */
-  RTno2ProxyRTC(RTC::Manager* manager);
+  RTno2ProxyRTC(RTC::Manager *manager);
 
   /*!
    * @brief destructor
@@ -55,11 +54,11 @@ class RTno2ProxyRTC
   ~RTno2ProxyRTC() override;
 
   // <rtc-template block="public_attribute">
-  
+
   // </rtc-template>
 
   // <rtc-template block="public_operation">
-  
+
   // </rtc-template>
 
   // <rtc-template block="activity">
@@ -68,18 +67,18 @@ class RTno2ProxyRTC
    * The initialize action (on CREATED->ALIVE transition)
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
-   RTC::ReturnCode_t onInitialize() override;
+  RTC::ReturnCode_t onInitialize() override;
 
   /***
    *
    * The finalize action (on ALIVE->END transition)
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
   // RTC::ReturnCode_t onFinalize() override;
 
@@ -90,8 +89,8 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
   // RTC::ReturnCode_t onStartup(RTC::UniqueId ec_id) override;
 
@@ -102,8 +101,8 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
   // RTC::ReturnCode_t onShutdown(RTC::UniqueId ec_id) override;
 
@@ -114,10 +113,10 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
-   RTC::ReturnCode_t onActivated(RTC::UniqueId ec_id) override;
+  RTC::ReturnCode_t onActivated(RTC::UniqueId ec_id) override;
 
   /***
    *
@@ -126,10 +125,10 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
-   RTC::ReturnCode_t onDeactivated(RTC::UniqueId ec_id) override;
+  RTC::ReturnCode_t onDeactivated(RTC::UniqueId ec_id) override;
 
   /***
    *
@@ -138,10 +137,10 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
-   RTC::ReturnCode_t onExecute(RTC::UniqueId ec_id) override;
+  RTC::ReturnCode_t onExecute(RTC::UniqueId ec_id) override;
 
   /***
    *
@@ -150,8 +149,8 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
   // RTC::ReturnCode_t onAborting(RTC::UniqueId ec_id) override;
 
@@ -162,8 +161,8 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
   // RTC::ReturnCode_t onError(RTC::UniqueId ec_id) override;
 
@@ -174,11 +173,11 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
   // RTC::ReturnCode_t onReset(RTC::UniqueId ec_id) override;
-  
+
   /***
    *
    * The state update action that is invoked after onExecute() action
@@ -186,8 +185,8 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
   // RTC::ReturnCode_t onStateUpdate(RTC::UniqueId ec_id) override;
 
@@ -198,32 +197,31 @@ class RTno2ProxyRTC
    * @param ec_id target ExecutionContext Id
    *
    * @return RTC::ReturnCode_t
-   * 
-   * 
+   *
+   *
    */
   // RTC::ReturnCode_t onRateChanged(RTC::UniqueId ec_id) override;
   // </rtc-template>
 
-
- protected:
+protected:
   // <rtc-template block="protected_attribute">
-  
+
   // </rtc-template>
 
   // <rtc-template block="protected_operation">
-  
+
   // </rtc-template>
 
   // Configuration variable declaration
   // <rtc-template block="config_declare">
   /*!
-   * 
+   *
    * - Name:  port_name
    * - DefaultValue: COM3
    */
   std::string m_port_name;
   /*!
-   * 
+   *
    * - Name:  baudrate
    * - DefaultValue: 57600
    */
@@ -237,9 +235,8 @@ class RTno2ProxyRTC
   /*!
    */
   RTC::InPort<RTC::TimedLong> m_in0In;
-  
-  // </rtc-template>
 
+  // </rtc-template>
 
   // DataOutPort declaration
   // <rtc-template block="outport_declare">
@@ -247,40 +244,37 @@ class RTno2ProxyRTC
   /*!
    */
   RTC::OutPort<RTC::TimedLong> m_out0Out;
-  
+
   // </rtc-template>
 
   // CORBA Port declaration
   // <rtc-template block="corbaport_declare">
-  
+
   // </rtc-template>
 
   // Service declaration
   // <rtc-template block="service_declare">
-  
+
   // </rtc-template>
 
   // Consumer declaration
   // <rtc-template block="consumer_declare">
-  
+
   // </rtc-template>
 
-
- private:
+private:
   // <rtc-template block="private_attribute">
-  
+
   // </rtc-template>
 
   // <rtc-template block="private_operation">
-  
+
   // </rtc-template>
-
 };
-
 
 extern "C"
 {
-  DLL_EXPORT void RTno2ProxyRTCInit(RTC::Manager* manager);
+  DLL_EXPORT void RTno2ProxyRTCInit(RTC::Manager *manager);
 };
 
 #endif // RTNO2PROXYRTC_H
