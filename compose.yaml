@@ -1,0 +1,20 @@
+services:
+  devel-rtm:
+    restart: always
+    container_name: devel-rtm
+    #user: $UID:$GID
+    build:
+      #context: .
+      #args:
+      #  UID: $UID
+      #  GID: $GID
+      #  USERNAME: $USERNAME
+    #  dockerfile: Dockerfile
+      dockerfile: scripts/ubuntu_2404/Dockerfile
+    # image: openrtm/devel-rtm:ubuntu24.04
+    volumes:
+      - .:/code
+      - ~/.ssh:/root/.ssh:ro
+    environment:
+      USER: root
+    command: sleep infinity
