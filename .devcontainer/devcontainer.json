@@ -1,0 +1,34 @@
+{
+    "name": "rtno2proxyrtc",
+    "dockerComposeFile": [
+        "../compose.yaml"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "davidanson.vscode-markdownlint",
+                "esbenp.prettier-vscode",
+                "foxundermoon.shell-format",
+                "fvclaus.sort-json-array",
+                "github.copilot",
+                "mhutchie.git-graph",
+                "ms-python.black-formatter",
+                "ms-python.flake8",
+                "ms-python.isort",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-vscode.cpptools",
+                "njpwerner.autodocstring",
+                "oderwat.indent-rainbow",
+                "shardulm94.trailing-spaces",
+                "tamasfe.even-better-toml"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python3"
+            }
+        }
+    },
+    "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} & bash",
+    "service": "devel-rtm",
+    "workspaceFolder": "/code"
+}
