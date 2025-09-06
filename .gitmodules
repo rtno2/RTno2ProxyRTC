@@ -1,0 +1,3 @@
+[submodule "rtno2proxy"]
+	path = rtno2proxy
+	url = git@github.com:sugarsweetrobotics/rtno2proxy.git

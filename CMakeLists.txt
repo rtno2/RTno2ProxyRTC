@@ -12,6 +12,13 @@ set(PROJECT_VENDOR "sugarsweetrobotics")
 set(PROJECT_MAINTAINER "unknown")
 set(PROJECT_TYPE "c++/rtno")
 
+if (WIN32)
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+else (WIN32)
+
+
+endif (WIN32)
+
 find_package(OpenRTM REQUIRED)
 set(RTM_VER ${OPENRTM_VERSION})
 set(RTM_SHORT_VER ${OPENRTM_VERSION_MAJOR}${OPENRTM_VERSION_MINOR}${OPENRTM_VERSION_PATCH})
@@ -118,6 +125,10 @@ add_subdirectory(cmake)
 if(BUILD_DOCUMENTATION)
     add_subdirectory(doc)
 endif(BUILD_DOCUMENTATION)
+
+# For RTno2Proxy library
+add_subdirectory(rtno2proxy)
+include_directories(${RTNO2PROXY_INCLUDE_DIRS})
 
 #if(BUILD_EXAMPLES)
 #    add_subdirectory(examples)

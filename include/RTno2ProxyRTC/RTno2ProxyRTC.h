@@ -31,6 +31,10 @@
 #include <rtm/DataInPort.h>
 #include <rtm/DataOutPort.h>
 
+#include "rtno2/protocol.h"
+#include "hal/Serial.h"
+#include "hal/EtherTcp.h"
+
 // <rtc-template block="component_description">
 /*!
  * @class RTno2ProxyRTC
@@ -264,7 +268,10 @@ protected:
 
 private:
   // <rtc-template block="private_attribute">
+  ssr::rtno2::protocol_t *rtno2;
+  ssr::SerialDevice *serial_device;
 
+  RTC::ReturnCode_t parse_rtno_infos(const ssr::rtno2::profile_t &prof, const ssr::rtno2::STATE &state, const ssr::rtno2::EC_TYPE &ec_type);
   // </rtc-template>
 
   // <rtc-template block="private_operation">
