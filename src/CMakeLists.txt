@@ -1,4 +1,4 @@
-set(comp_srcs RTno2ProxyRTC.cpp )
+set(comp_srcs RTno2ProxyRTC.cpp profile_parser.cpp)
 set(standalone_srcs RTno2ProxyRTCComp.cpp)
 
 if(${OPENRTM_VERSION_MAJOR} LESS 2)

@@ -200,15 +200,44 @@ RTC::ReturnCode_t RTno2ProxyRTC::onInitialize()
 
 RTC::ReturnCode_t RTno2ProxyRTC::parse_rtno_infos(const ssr::rtno2::profile_t &prof, const ssr::rtno2::STATE &state, const ssr::rtno2::EC_TYPE &ec_type)
 {
+  if (parse_profile(interface_container_, prof, state, ec_type) != RTC::RTC_OK)
+  {
+    return RTC::RTC_ERROR;
+  }
+
+  for (auto port : interface_container_->inports_)
+  {
+    addInPort(port->name().c_str(), port->get_port_base());
+  }
+
+  for (auto port : interface_container_->outports_)
+  {
+    addOutPort(port->name().c_str(), port->get_port_base());
+  }
+
   return RTC::RTC_OK;
 }
 
-/*
+RTC::ReturnCode_t RTno2ProxyRTC::finalize_rtno_setup()
+{
+  for (auto port : interface_container_->inports_)
+  {
+    removeInPort(port->get_port_base());
+  }
+
+  for (auto port : interface_container_->outports_)
+  {
+    removeOutPort(port->get_port_base());
+  }
+
+  return finalize_profile(interface_container_);
+}
+
 RTC::ReturnCode_t RTno2ProxyRTC::onFinalize()
 {
+  finalize_rtno_setup();
   return RTC::RTC_OK;
 }
-*/
 
 // RTC::ReturnCode_t RTno2ProxyRTC::onStartup(RTC::UniqueId /*ec_id*/)
 //{
@@ -240,6 +269,50 @@ RTC::ReturnCode_t RTno2ProxyRTC::onDeactivated(RTC::UniqueId /*ec_id*/)
 
 RTC::ReturnCode_t RTno2ProxyRTC::onExecute(RTC::UniqueId /*ec_id*/)
 {
+
+  static const uint32_t wait_usec = 20 * 1000;
+  static const uint32_t try_count = 10;
+  for (auto port : interface_container_->inports_)
+  {
+    if (port->is_new())
+    {
+      uint8_t buffer[ssr::rtno2::MAX_PACKET_SIZE];
+      size_t max_buffer_size = ssr::rtno2::MAX_PACKET_SIZE;
+      size_t buffer_written_size;
+      port->read();
+      if (port->get_data(buffer, max_buffer_size, &buffer_written_size) == 0)
+      {
+        // Error
+        return RTC::RTC_ERROR;
+      }
+      ssr::rtno2::RESULT result;
+      if ((result = this->rtno2->send_inport_data(port->name(), buffer, buffer_written_size, wait_usec, try_count)) != ssr::rtno2::RESULT::OK)
+      {
+        return RTC::RTC_ERROR;
+      }
+    }
+  }
+
+  for (auto port : interface_container_->outports_)
+  {
+    uint8_t buffer[ssr::rtno2::MAX_PACKET_SIZE];
+    size_t max_buffer_size = ssr::rtno2::MAX_PACKET_SIZE;
+    uint8_t buffer_written_size;
+    ssr::rtno2::RESULT result;
+    if ((result = this->rtno2->receive_outport_data(port->name(), buffer, max_buffer_size, &buffer_written_size, wait_usec, try_count)) != ssr::rtno2::RESULT::OK)
+    {
+      if (result == ssr::rtno2::RESULT::OUTPORT_BUFFER_EMPTY)
+      {
+        // Do nothing
+        continue;
+      }
+
+      if (port->write(buffer, buffer_written_size) == 0)
+      {
+        return RTC::RTC_ERROR;
+      }
+    }
+  }
   return RTC::RTC_OK;
 }
 

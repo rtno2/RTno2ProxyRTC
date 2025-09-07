@@ -35,6 +35,9 @@
 #include "hal/Serial.h"
 #include "hal/EtherTcp.h"
 
+#include "interface_container.h"
+#include "profile_parser.h"
+
 // <rtc-template block="component_description">
 /*!
  * @class RTno2ProxyRTC
@@ -84,7 +87,7 @@ public:
    *
    *
    */
-  // RTC::ReturnCode_t onFinalize() override;
+  RTC::ReturnCode_t onFinalize() override;
 
   /***
    *
@@ -270,8 +273,10 @@ private:
   // <rtc-template block="private_attribute">
   ssr::rtno2::protocol_t *rtno2;
   ssr::SerialDevice *serial_device;
+  std::shared_ptr<interface_container_t> interface_container_;
 
   RTC::ReturnCode_t parse_rtno_infos(const ssr::rtno2::profile_t &prof, const ssr::rtno2::STATE &state, const ssr::rtno2::EC_TYPE &ec_type);
+  RTC::ReturnCode_t finalize_rtno_setup();
   // </rtc-template>
 
   // <rtc-template block="private_operation">
