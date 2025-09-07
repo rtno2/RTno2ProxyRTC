@@ -1,4 +1,4 @@
-set(comp_srcs RTno2ProxyRTC.cpp )
+set(comp_srcs RTno2ProxyRTC.cpp profile_parser.cpp)
 set(standalone_srcs RTno2ProxyRTCComp.cpp)
 
 if(${OPENRTM_VERSION_MAJOR} LESS 2)
@@ -6,7 +6,7 @@ if(${OPENRTM_VERSION_MAJOR} LESS 2)
   set(OPENRTM_INCLUDE_DIRS ${OPENRTM_INCLUDE_DIRS} ${OMNIORB_INCLUDE_DIRS})
   set(OPENRTM_LIBRARY_DIRS ${OPENRTM_LIBRARY_DIRS} ${OMNIORB_LIBRARY_DIRS})
 else()
-  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if (DEFINED OPENRTM_INCLUDE_DIRS)
@@ -41,6 +41,10 @@ MAP_ADD_STR(comp_hdrs "../" comp_headers)
 
 link_directories(${OPENRTM_LIBRARY_DIRS})
 
+# RTno2Proxy
+include_directories(${RTNO2PROXY_INCLUDE_DIRS})
+set(ADDITIONAL_LIBRARIES rtno_hal rtno_proxy)
+
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${comp_srcs}
   ${comp_headers} ${ALL_IDL_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
@@ -49,12 +53,12 @@ if(NOT TARGET ALL_IDL_TGT)
  add_custom_target(ALL_IDL_TGT)
 endif(NOT TARGET ALL_IDL_TGT)
 add_dependencies(${PROJECT_NAME} ALL_IDL_TGT)
-target_link_libraries(${PROJECT_NAME} ${OPENRTM_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${OPENRTM_LIBRARIES} ${ADDITIONAL_LIBRARIES})
 
 add_executable(${PROJECT_NAME}Comp ${standalone_srcs}
   ${comp_srcs} ${comp_headers} ${ALL_IDL_SRCS})
 add_dependencies(${PROJECT_NAME}Comp ALL_IDL_TGT)
-target_link_libraries(${PROJECT_NAME}Comp ${OPENRTM_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}Comp ${OPENRTM_LIBRARIES} ${ADDITIONAL_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}Comp
     EXPORT ${PROJECT_NAME}
