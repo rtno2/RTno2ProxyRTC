@@ -17,7 +17,7 @@ class outport_wrapper_base_t
 protected:
   const std::string name_;
   const std::string typename_;
-  const std::shared_ptr<RTC::OutPortBase> port_;
+  std::shared_ptr<RTC::OutPortBase> port_;
   ssr::rtno2::TYPECODE typecode_;
   const bool is_avr_;
 
@@ -33,7 +33,8 @@ public:
   bool is_avr() const { return is_avr_; }
 
 public:
-  outport_wrapper_base_t(const std::string &name, const std::string &type_name, std::shared_ptr<RTC::OutPortBase> &&port, bool is_avr) : name_(name), typename_(type_name), port_(std::move(port)), is_avr_(is_avr) {}
+  outport_wrapper_base_t(const std::string &name, const std::string &type_name, std::shared_ptr<RTC::OutPortBase> port, bool is_avr) : name_(name), typename_(type_name), port_(port), is_avr_(is_avr) {}
+  outport_wrapper_base_t(const std::string& name, const std::string& type_name, bool is_avr) : name_(name), typename_(type_name), is_avr_(is_avr) {}
   virtual ~outport_wrapper_base_t() {}
 
 public:
@@ -41,6 +42,10 @@ public:
   RTC::OutPort<DataType> *get_port()
   {
     return std::dynamic_pointer_cast<RTC::OutPort<DataType>>(port_).get();
+  }
+
+  void set_port(const std::shared_ptr<RTC::OutPortBase>& port) {
+      port_ = port;
   }
 
   template <typename DataType>
@@ -105,19 +110,21 @@ template <class DataType, typename VType>
 class seq_outport_wrapper_t : public outport_wrapper_base_t
 {
 private:
-  DataType value_;
+  DataType *pValue_;
 
 public:
-  seq_outport_wrapper_t(const std::string &name, const bool is_avr = false) : outport_wrapper_base_t(name, CORBA_Util::toTypename<DataType>(), std::make_shared<RTC::OutPort<DataType>>(name.c_str(), value_), is_avr)
+  seq_outport_wrapper_t(const std::string &name, const bool is_avr = false) : pValue_(new DataType()), outport_wrapper_base_t(name, CORBA_Util::toTypename<DataType>(), is_avr)
   {
+      set_port(std::make_shared<RTC::OutPort<DataType>>(name.c_str(), *pValue_));
   }
 
   virtual ~seq_outport_wrapper_t()
   {
+      delete pValue_;
   }
 
 public:
-  virtual size_t get_length(void) const override { return value_.data.length(); }
+  virtual size_t get_length(void) const override { return pValue_->data.length(); }
   virtual size_t get_type_size(void) const override { return sizeof(VType); }
 
   virtual int32_t write(void *buffer, size_t buffer_size) override
@@ -131,17 +138,18 @@ private:
     if (is_avr() && typename_ == "TimedDoubleSeq")
     {
       size_t length = buffer_size / 4;
-      value_.data.length(length);
+      pValue_->data.length(length);
       float *pData = (float *)value;
       for (size_t i = 0; i < length; i++)
       {
-        value_.data[i] = (double)pData[i];
+        pValue_->data[i] = (double)pData[i];
       }
     }
     else
     {
       size_t length = buffer_size / sizeof(VType);
-      memcpy(&(value_.data[0]), value, length * sizeof(VType));
+      pValue_->data.length(length);
+      memcpy(&(pValue_->data[0]), value, length * sizeof(VType));
     }
     return get_port<DataType>()->write();
   }
