@@ -130,7 +130,8 @@ RTno2ProxyRTC::RTno2ProxyRTC(RTC::Manager *manager)
       m_in0In("in0", m_in0),
       m_out0Out("out0", m_out0),
       rtno2(nullptr),
-      serial_device(nullptr)
+      serial_device(nullptr),
+    interface_container_(std::make_shared<interface_container_t>())
 // </rtc-template>
 {
 }
@@ -171,9 +172,12 @@ RTC::ReturnCode_t RTno2ProxyRTC::onInitialize()
   this->serial_device = create_serial_device_interactively(m_port_name, m_baudrate);
   if (this->serial_device)
   {
-    this->rtno2 = new ssr::rtno2::protocol_t(serial_device);
+      std::cout << "Serial Device Open Success." << std::endl;
+      this->rtno2 = new ssr::rtno2::protocol_t(serial_device);
   }
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+  std::cout << "Starting RTno....." << std::endl;
   const uint32_t wait_usec = 20 * 1000;
   const int try_count = 10;
   const auto prof = rtno2->get_profile(wait_usec, try_count);
@@ -200,6 +204,7 @@ RTC::ReturnCode_t RTno2ProxyRTC::onInitialize()
 
 RTC::ReturnCode_t RTno2ProxyRTC::parse_rtno_infos(const ssr::rtno2::profile_t &prof, const ssr::rtno2::STATE &state, const ssr::rtno2::EC_TYPE &ec_type)
 {
+  std::cout << "Parsing RTno profile...." << std::endl;
   if (parse_profile(interface_container_, prof, state, ec_type) != RTC::RTC_OK)
   {
     return RTC::RTC_ERROR;
@@ -207,11 +212,13 @@ RTC::ReturnCode_t RTno2ProxyRTC::parse_rtno_infos(const ssr::rtno2::profile_t &p
 
   for (auto port : interface_container_->inports_)
   {
+    std::cout << "addInPort(" << port->name() << ")" << std::endl;
     addInPort(port->name().c_str(), port->get_port_base());
   }
 
   for (auto port : interface_container_->outports_)
   {
+    std::cout << "addOutPort(" << port->name() << ")" << std::endl;
     addOutPort(port->name().c_str(), port->get_port_base());
   }
 
@@ -251,19 +258,30 @@ RTC::ReturnCode_t RTno2ProxyRTC::onFinalize()
 
 RTC::ReturnCode_t RTno2ProxyRTC::onActivated(RTC::UniqueId /*ec_id*/)
 {
+  static const uint32_t wait_usec = 20 * 1000;
+  static const uint32_t try_count = 10;
   if (rtno2 == nullptr)
   {
     return RTC::RTC_ERROR;
   }
+  if (rtno2->activate(wait_usec, try_count) != ssr::rtno2::RESULT::OK) {
+    std::cout << "RTno2ProxyRTC : activate failed" << std::endl;
+    return RTC::RTC_ERROR;
+  }
+  std::cout << "RTno2ProxyRTC activated" << std::endl;
   return RTC::RTC_OK;
 }
 
 RTC::ReturnCode_t RTno2ProxyRTC::onDeactivated(RTC::UniqueId /*ec_id*/)
 {
+  static const uint32_t wait_usec = 20 * 1000;
+  static const uint32_t try_count = 10;
   if (rtno2 == nullptr)
   {
     return RTC::RTC_OK;
   }
+  rtno2->deactivate(wait_usec, try_count);
+  std::cout << "RTno2ProxyRTC deactivated" << std::endl;
   return RTC::RTC_OK;
 }
 
@@ -272,6 +290,11 @@ RTC::ReturnCode_t RTno2ProxyRTC::onExecute(RTC::UniqueId /*ec_id*/)
 
   static const uint32_t wait_usec = 20 * 1000;
   static const uint32_t try_count = 10;
+  if (this->rtno2->execute(wait_usec, try_count) != ssr::rtno2::RESULT::OK) {
+    std::cout << "RTno2ProxyRTC execute failed" << std::endl;
+    return RTC::RTC_ERROR;
+  }
+      
   for (auto port : interface_container_->inports_)
   {
     if (port->is_new())
@@ -296,7 +319,7 @@ RTC::ReturnCode_t RTno2ProxyRTC::onExecute(RTC::UniqueId /*ec_id*/)
   for (auto port : interface_container_->outports_)
   {
     uint8_t buffer[ssr::rtno2::MAX_PACKET_SIZE];
-    size_t max_buffer_size = ssr::rtno2::MAX_PACKET_SIZE;
+    const size_t max_buffer_size = ssr::rtno2::MAX_PACKET_SIZE;
     uint8_t buffer_written_size;
     ssr::rtno2::RESULT result;
     if ((result = this->rtno2->receive_outport_data(port->name(), buffer, max_buffer_size, &buffer_written_size, wait_usec, try_count)) != ssr::rtno2::RESULT::OK)
@@ -307,10 +330,12 @@ RTC::ReturnCode_t RTno2ProxyRTC::onExecute(RTC::UniqueId /*ec_id*/)
         continue;
       }
 
-      if (port->write(buffer, buffer_written_size) == 0)
-      {
-        return RTC::RTC_ERROR;
-      }
+    } else {
+        if (port->write(buffer, buffer_written_size) == 0)
+        {
+            return RTC::RTC_ERROR;
+        }
+
     }
   }
   return RTC::RTC_OK;
