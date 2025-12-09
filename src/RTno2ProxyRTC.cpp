@@ -331,9 +331,11 @@ RTC::ReturnCode_t RTno2ProxyRTC::onExecute(RTC::UniqueId /*ec_id*/)
       }
 
     } else {
-        if (port->write(buffer, buffer_written_size) == 0)
+        int result;
+        if ((result = port->write(buffer, buffer_written_size)) != 0)
         {
-            return RTC::RTC_ERROR;
+            std::cout << "RTno2ProxyRTC write returns non zero (" << result << ")." << std::endl;
+            // return RTC::RTC_ERROR;
         }
 
     }
