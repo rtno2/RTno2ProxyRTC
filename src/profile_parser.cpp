@@ -117,7 +117,7 @@ RTC::ReturnCode_t _parse_outport(const std::shared_ptr<interface_container_t> &i
 {
     try
     {
-        interface_container->outports_.push_back(_into_outport_wrapper(outport));
+        interface_container->outports_.emplace_back(_into_outport_wrapper(outport));
     }
     catch (outport_parse_failed_exception &ex)
     {
